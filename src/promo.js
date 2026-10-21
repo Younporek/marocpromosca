@@ -1,10 +1,14 @@
 'use strict';
 const get = require('lodash/get');
 
-// VULNERABILITE VOLONTAIRE POUR UN LABORATOIRE ISOLE.
-// Ne jamais employer ce code avec de veritables saisies utilisateur.
+// N'accepte qu'un pourcentage decimal entre 0 et 100.
+// Aucune expression JavaScript n'est evaluee.
 function readPromotionPercent(raw) {
-  return eval(raw);
+  if (typeof raw !== 'string' ||
+      !/^(?:100(?:\.0{1,2})?|(?:[0-9]|[1-9][0-9])(?:\.[0-9]{1,2})?)$/.test(raw)) {
+    throw new TypeError('Format de remise interdit');
+  }
+  return Number(raw);
 }
 
 function totalFromOrder(order) {
