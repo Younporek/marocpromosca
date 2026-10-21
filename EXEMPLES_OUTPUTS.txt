@@ -1,0 +1,36 @@
+EXEMPLES ILLUSTRATIFS - NE SONT PAS DES LOGS DE L'ENVIRONNEMENT DE L'UTILISATEUR
+================================================================================
+
+1) npm test - sources initiales
+  test remise de 15 % sur 200 DH = 170 DH ... ok
+  test sans promotion, le prix ne change pas ... ok
+  test remise de 12,5 % sur 80 DH = 70 DH ... ok
+  test un prix negatif est refuse ... ok
+  test le pourcentage simple est lu correctement ... ok
+  # tests 5
+  # pass 5
+  # fail 0
+
+2) Security gate - version initiale
+  ==== 1/2 : SAST - Semgrep ====
+  src/promo.js : appel a eval() signale par formation.javascript.eval-interdit
+  ==== 2/2 : SCA - npm audit ====
+  lodash 4.17.15 : alertes high connues (nombre et details variables)
+  ==== 3/3 : Rapport commun ====
+  SAST / Semgrep : 1 alerte(s)
+  SCA / npm audit : 1 paquet(s) avec alerte HIGH/CRITICAL
+  SECURITY GATE : FAIL - livraison interdite
+
+3) Apres correction du code seulement
+  SAST / Semgrep : 0 alerte(s)
+  SCA / npm audit : 1 paquet(s) avec alerte HIGH/CRITICAL
+  SECURITY GATE : FAIL - livraison interdite
+
+4) Apres mise a jour lodash vers 4.18.1 et nouveau package-lock
+  SAST / Semgrep : 0 alerte(s)
+  SCA / npm audit : 0 paquet(s) avec alerte HIGH/CRITICAL
+  SECURITY GATE : PASS - analyses conformes au seuil
+  PACKAGING OK : dist/marocpromo-release.tgz
+
+IMPORTANT : les comptes exacts de vulnerabilities et les IDs d'avis evoluent
+avec les bases de donnees. Une erreur reseau n'est pas equivalent a "0 vulnerabilite".

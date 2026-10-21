@@ -1,0 +1,6 @@
+rules:
+  - id: formation.javascript.eval-interdit
+    languages: [javascript]
+    severity: ERROR
+    message: "SAST : eval() peut executer du code arbitraire. Utiliser un traitement de donnees borne."
+    pattern: eval(...)

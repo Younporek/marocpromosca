@@ -1,0 +1,61 @@
+TEAMCITY - TP 4 / MAROCPROMO - 1 BUILD CONFIGURATION, 3 COMMAND LINE STEPS
+==========================================================================
+
+PROJECT : FORMATION_DEVSECOPS_TP4
+BUILD CONFIGURATION : 01-MAROCPROMO-SECURITY-PIPELINE
+VCS Root Git : branche refs/heads/main
+
+GENERAL SETTINGS / ARTIFACT PATHS :
+reports/** => security
+dist/marocpromo-release.tgz => release
+dist/marocpromo-release.tgz.sha256 => release
+
+GENERAL SETTINGS / PUBLISH ARTIFACTS :
+Even if build fails
+
+PARAMETERS :
+env.BUILD_LABEL = %build.number%
+
+STEP 01 - INSTALLER ET TESTER
+Runner type : Command Line
+Mode : Custom script
+--------------------------------------
+set -eu
+rm -rf reports dist
+node --version
+npm --version
+npm ci --ignore-scripts --no-audit --no-fund
+npm test
+
+STEP 02 - SECURITY GATE : SAST + SCA
+Runner type : Command Line
+Mode : Custom script
+--------------------------------------
+set -eu
+bash scripts/security_gate.sh
+
+STEP 03 - PACKAGING CONTROLE
+Runner type : Command Line
+Mode : Custom script
+--------------------------------------
+set -eu
+bash scripts/package.sh
+
+REGLE : conserver "Only if build status is successful" pour Step 03.
+L'etape 02 lance les deux scanners dans le meme Step meme si Semgrep trouve un defaut.
+Sur le 1er build, seul security/ est publie; release/ n'existe pas.
+Sur le build corrige, security/ et release/ sont publies.
+
+PREPARATION UNIQUE DES SOURCES (SUR UBUNTU / VM DE TRAVAIL) :
+npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+npm ci --ignore-scripts --no-audit --no-fund
+npm test
+
+CORRECTION 1 - SAST :
+cp solution/promo.fixed.js src/promo.js
+# ensuite git add/commit/push, nouveau build : SAST PASS, SCA encore FAIL
+
+CORRECTION 2 - SCA :
+npm install --save-exact lodash@4.18.1 --package-lock-only --ignore-scripts --no-audit --no-fund
+npm ci --ignore-scripts --no-audit --no-fund
+# ensuite git add package.json package-lock.json && git commit && git push
